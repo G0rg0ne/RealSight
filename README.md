@@ -189,6 +189,42 @@ curl -X POST http://localhost:8080/api/v1/predict \
   -d '{"features": {"your_feature": 1.0}}'
 ```
 
+## CI/CD (Docker Hub)
+
+Pushing a semver git tag (`v*.*.*`, e.g. `v1.0.0`) triggers [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml), which builds and pushes the inference images to Docker Hub in parallel.
+
+| Image | Dockerfile | Example tags for `v1.0.0` |
+|-------|------------|----------------------------|
+| [`g0rg0ne/realsight-api`](https://hub.docker.com/r/g0rg0ne/realsight-api) | `backend/Dockerfile` | `1.0.0`, `v1.0.0`, `latest` |
+| [`g0rg0ne/realsight-triton`](https://hub.docker.com/r/g0rg0ne/realsight-triton) | `triton/Dockerfile` | `1.0.0`, `v1.0.0`, `latest` |
+
+Build context is the repository root (both images require `models/model.cbm` and Triton model files at build time).
+
+### GitHub secrets
+
+Add these in the GitHub repository under **Settings → Secrets and variables → Actions**:
+
+| Secret | Value |
+|--------|--------|
+| `DOCKERHUB_USERNAME` | `g0rg0ne` |
+| `DOCKERHUB_TOKEN` | Docker Hub [access token](https://hub.docker.com/settings/security) (not your account password) |
+
+### Release a version
+
+Ensure `models/model.cbm` is present locally, commit, then tag and push:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Monitor the workflow under **Actions** on GitHub. After it succeeds, pull published images:
+
+```bash
+docker pull g0rg0ne/realsight-api:v1.0.0
+docker pull g0rg0ne/realsight-triton:v1.0.0
+```
+
 ## Recent changes
 
 See [DEVELOPMENT.md](DEVELOPMENT.md).
