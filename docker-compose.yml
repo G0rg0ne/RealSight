@@ -1,7 +1,30 @@
 services:
-  dvf-reader:
-    build: .
-    volumes:
-      - ./data:/data:ro
-    environment:
-      DVF_CSV_PATH: /data/dvf.csv
+  triton:
+    build:
+      context: .
+      dockerfile: triton/Dockerfile
+    env_file:
+      - .env
+    command: tritonserver --model-repository=${MODEL_REPOSITORY_PATH} --log-verbose=1
+    ports:
+      - "${TRITON_HTTP_PORT:-8000}:8000"
+      - "${TRITON_GRPC_PORT:-8001}:8001"
+      - "${TRITON_METRICS_PORT:-8002}:8002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 120s
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      triton:
+        condition: service_healthy

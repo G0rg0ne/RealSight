@@ -217,7 +217,12 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Trained CatBoost models (place locally, do not commit)
+*.cbm
+
 data/*
 #cursor
 .cursor/
 DEVELOPMENT.md
+
+scripts/*

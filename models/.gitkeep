@@ -1,0 +1,2 @@
+# Place your trained CatBoost model here as model.cbm
+# Example: cp /path/to/your/model.cbm ./models/model.cbm
