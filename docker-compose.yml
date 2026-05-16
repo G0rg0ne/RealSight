@@ -1,0 +1,7 @@
+services:
+  dvf-reader:
+    build: .
+    volumes:
+      - ./data:/data:ro
+    environment:
+      DVF_CSV_PATH: /data/dvf.csv

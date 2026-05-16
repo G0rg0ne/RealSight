@@ -1,0 +1,16 @@
+.git
+.gitignore
+.venv
+__pycache__
+*.pyc
+.ruff_cache
+.mypy_cache
+.pytest_cache
+htmlcov
+.env
+.env.*
+*.md
+!README.md
+
+# Do not bake the multi-GB CSV into the image; mount it at runtime.
+data/
