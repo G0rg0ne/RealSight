@@ -6,5 +6,5 @@ RUN pip3 install --no-cache-dir \
     "catboost>=1.2.0,<2.0.0" \
     "numpy>=1.26.0,<3.0.0"
 
-COPY model_repository/catboost_model /models/catboost_model
+COPY models/catboost_model /models/catboost_model
 COPY models/model.cbm /models/model.cbm
