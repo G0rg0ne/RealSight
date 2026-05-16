@@ -195,8 +195,8 @@ Pushing a semver git tag (`v*.*.*`, e.g. `v1.0.0`) triggers [`.github/workflows/
 
 | Image | Dockerfile | Example tags for `v1.0.0` |
 |-------|------------|----------------------------|
-| [`g0rg0ne/realsight-api`](https://hub.docker.com/r/g0rg0ne/realsight-api) | `backend/Dockerfile` | `1.0.0`, `v1.0.0`, `latest` |
-| [`g0rg0ne/realsight-triton`](https://hub.docker.com/r/g0rg0ne/realsight-triton) | `triton/Dockerfile` | `1.0.0`, `v1.0.0`, `latest` |
+| [`g0rg0ne/realsight-api`](https://hub.docker.com/r/g0rg0ne/realsight-api) | `backend/Dockerfile` | `v1.0.0`, `latest` |
+| [`g0rg0ne/realsight-triton`](https://hub.docker.com/r/g0rg0ne/realsight-triton) | `triton/Dockerfile` | `v1.0.0`, `latest` |
 
 Build context is the repository root (both images require `models/model.cbm` and Triton model files at build time).
 
