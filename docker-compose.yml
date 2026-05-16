@@ -16,7 +16,6 @@ services:
       timeout: 5s
       retries: 12
       start_period: 120s
-
   api:
     build:
       context: .
@@ -24,7 +23,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${API_PORT:-8080}:8080"
+      - "${API_PORT:-8888}:8888"
     depends_on:
       triton:
         condition: service_healthy
