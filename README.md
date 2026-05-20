@@ -87,18 +87,16 @@ backend/
 ├── Dockerfile
 └── requirements.txt
 
-model_repository/
-└── catboost_model/
+models/
+├── model.cbm                 # trained CatBoost artifact (not in git; required at build time)
+└── catboost_model/           # Triton model repository (baked into Triton image as /models)
     ├── config.pbtxt
     └── 1/
         ├── model.py          # Triton Python backend
-        └── model.cbm         # optional; see models/ below
-
-models/
-└── model.cbm                 # recommended location for your trained model (not in git)
+        └── model.cbm         # optional copy; primary artifact is models/model.cbm
 
 triton/
-└── Dockerfile                # pre-installs catboost for the Python backend
+└── Dockerfile                # pre-installs catboost, CMD starts tritonserver
 ```
 
 ### Setup
@@ -123,10 +121,29 @@ triton/
    docker compose up --build triton api
    ```
 
-   - API: http://localhost:8080 (docs at `/docs`)
+   - API: http://localhost:8888 (docs at `/docs`)
    - Triton HTTP: http://localhost:8000
 
-   Build context is the repo root: `triton/Dockerfile` copies `model_repository/catboost_model` and `models/model.cbm` into `/models/`; `backend/Dockerfile` copies `models/model.cbm` for the features endpoint.
+   Build context is the repo root: `triton/Dockerfile` copies `models/catboost_model` and `models/model.cbm` into `/models/`; `backend/Dockerfile` copies `models/model.cbm` for the features endpoint.
+
+### Self-contained images (Docker Hub / Kubernetes)
+
+Both inference images start without a custom `command` in Compose, Argo CD, or raw `docker run`:
+
+| Image | Default process | Notes |
+|-------|-----------------|-------|
+| `g0rg0ne/realsight-triton` | `tritonserver --model-repository=${MODEL_REPOSITORY_PATH} --log-verbose=1` | `MODEL_REPOSITORY_PATH` defaults to `/models` in the image |
+| `g0rg0ne/realsight-api` | `uvicorn app.main:app --host 0.0.0.0 --port 8888` | Runs as non-root user `app` (UID/GID 1000); set `TRITON_URL` to reach Triton (e.g. `realsight-triton:8000` in-cluster) |
+
+**Direct run** (after `docker pull`):
+
+```bash
+docker run --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 g0rg0ne/realsight-triton:v1.0.0
+
+docker run --rm -p 8888:8888 -e TRITON_URL=host.docker.internal:8000 g0rg0ne/realsight-api:v1.0.0
+```
+
+**Kubernetes / Argo CD:** reference the image and ports only; do not override `command` unless you intentionally change Triton flags. Optional env: `MODEL_REPOSITORY_PATH` (default `/models`), `TRITON_URL`, `MODEL_NAME`, `MODEL_VERSION`.
 
 ### Environment variables
 
@@ -182,9 +199,9 @@ uvicorn app.main:app --reload --port 8080
 ### Testing
 
 ```bash
-curl http://localhost:8080/api/v1/health
-curl http://localhost:8080/api/v1/features
-curl -X POST http://localhost:8080/api/v1/predict \
+curl http://localhost:8888/api/v1/health
+curl http://localhost:8888/api/v1/features
+curl -X POST http://localhost:8888/api/v1/predict \
   -H "Content-Type: application/json" \
   -d '{"features": {"your_feature": 1.0}}'
 ```

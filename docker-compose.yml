@@ -6,6 +6,8 @@ services:
     env_file:
       - .env
     command: tritonserver --model-repository=${MODEL_REPOSITORY_PATH} --log-verbose=1
+    environment:
+      - MODEL_REPOSITORY_PATH=/models
     ports:
       - "${TRITON_HTTP_PORT:-8000}:8000"
       - "${TRITON_GRPC_PORT:-8001}:8001"

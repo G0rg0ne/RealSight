@@ -8,3 +8,6 @@ RUN pip3 install --no-cache-dir \
 
 COPY models/catboost_model /models/catboost_model
 COPY models/model.cbm /models/model.cbm
+
+ENV MODEL_REPOSITORY_PATH=/models
+
