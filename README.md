@@ -132,7 +132,7 @@ argocd/
 
 ### Self-contained images (Docker Hub / Kubernetes)
 
-Both inference images start without a custom `command` in Compose, Argo CD, or raw `docker run`:
+Both inference images define their own startup command in the Dockerfile. Kubernetes repeats the Triton command explicitly so production deploys do not depend on a rebuilt image tag alone:
 
 | Image | Default process | Notes |
 |-------|-----------------|-------|
@@ -158,7 +158,7 @@ Plain Kubernetes manifests live under [`k8s/realsight/`](k8s/realsight/). An Arg
 | Deployment + Service | `realsight-triton` | Image `g0rg0ne/realsight-triton:v1.0.0`, ports 8000/8001/8002 |
 | Deployment + Service | `realsight-api` | Image `g0rg0ne/realsight-api:v1.0.0`, ClusterIP port 8888, `runAsUser` 1000 |
 
-Do not override container `command` unless you intentionally change Triton flags. Bump image tags in `k8s/realsight/triton.yaml` and `k8s/realsight/api.yaml` when releasing new versions.
+The Triton Deployment runs `tritonserver --model-repository=${MODEL_REPOSITORY_PATH} --log-verbose=1` (from the ConfigMap). Change that `command`/`args` block only if you intentionally change Triton flags. Bump image tags in `k8s/realsight/triton.yaml` and `k8s/realsight/api.yaml` when releasing new versions.
 
 **Register the app** (adjust `repoURL` / `targetRevision` if your fork or branch differs):
 

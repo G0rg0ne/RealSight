@@ -11,3 +11,6 @@ COPY models/model.cbm /models/model.cbm
 
 ENV MODEL_REPOSITORY_PATH=/models
 
+# Self-contained startup for Docker Hub / Kubernetes (no Compose or manifest command required).
+CMD ["sh", "-c", "exec tritonserver --model-repository=${MODEL_REPOSITORY_PATH} --log-verbose=1"]
+

@@ -5,7 +5,6 @@ services:
       dockerfile: triton/Dockerfile
     env_file:
       - .env
-    command: tritonserver --model-repository=${MODEL_REPOSITORY_PATH} --log-verbose=1
     environment:
       - MODEL_REPOSITORY_PATH=/models
     ports:
