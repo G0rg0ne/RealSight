@@ -16,24 +16,16 @@ class TritonPythonModel:
     """CatBoost model served via Triton Python backend."""
 
     def _resolve_model_path(self, args: dict) -> str:
-        """Resolve model.cbm from MODEL_CBM_PATH or the model repository layout."""
-        env_path = os.environ.get("MODEL_CBM_PATH", "").strip()
-        if env_path and os.path.isfile(env_path):
-            return env_path
-
+        """Resolve model.cbm under the Triton model version directory."""
         model_dir = args["model_repository"]
         model_version = args["model_version"]
-        candidates = [
-            os.path.join(model_dir, model_version, "model.cbm"),
-            os.path.join(model_dir, "model.cbm"),
-        ]
-        for path in candidates:
-            if os.path.isfile(path):
-                return path
+        path = os.path.join(model_dir, model_version, "model.cbm")
+        if os.path.isfile(path):
+            return path
 
         raise FileNotFoundError(
-            "CatBoost model not found. Set MODEL_CBM_PATH or place model.cbm at "
-            f"{candidates[0]} (also tried {candidates[1]})"
+            "CatBoost model not found. Place model.cbm at "
+            f"{path} (MODEL_REPOSITORY_PATH=/models, version 1)."
         )
 
     def initialize(self, args: dict) -> None:

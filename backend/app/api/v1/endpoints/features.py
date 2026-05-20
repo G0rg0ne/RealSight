@@ -16,7 +16,10 @@ async def list_features() -> FeaturesResponse:
     except FileNotFoundError as exc:
         raise HTTPException(
             status_code=404,
-            detail="Model file not found. Place model.cbm in the model repository.",
+            detail=(
+                "Model file not found. Place model.cbm at "
+                "models/catboost_model/1/model.cbm (container: /models/catboost_model/1/model.cbm)."
+            ),
         ) from exc
     except (RuntimeError, OSError) as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

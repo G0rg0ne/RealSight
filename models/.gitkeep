@@ -1,2 +1,2 @@
-# Place your trained CatBoost model here as model.cbm
-# Example: cp /path/to/your/model.cbm ./models/model.cbm
+# Trained CatBoost artifact: place at catboost_model/1/model.cbm
+# Example: cp /path/to/your/model.cbm ./models/catboost_model/1/model.cbm
