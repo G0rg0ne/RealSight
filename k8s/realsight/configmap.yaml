@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: realsight-config
+  namespace: realsight
+  labels:
+    app.kubernetes.io/part-of: realsight
+data:
+  TRITON_URL: "realsight-triton:8000"
+  MODEL_NAME: "catboost_model"
+  MODEL_VERSION: "1"
+  MODEL_REPOSITORY_PATH: "/models"

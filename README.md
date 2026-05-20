@@ -97,6 +97,10 @@ models/
 
 triton/
 └── Dockerfile                # pre-installs catboost, CMD starts tritonserver
+
+k8s/realsight/                # Kubernetes manifests (namespace, config, deployments, services)
+argocd/
+└── realsight-application.yaml  # Argo CD Application (syncs k8s/realsight)
 ```
 
 ### Setup
@@ -143,7 +147,44 @@ docker run --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 g0rg0ne/realsight-triton:
 docker run --rm -p 8888:8888 -e TRITON_URL=host.docker.internal:8000 g0rg0ne/realsight-api:v1.0.0
 ```
 
-**Kubernetes / Argo CD:** reference the image and ports only; do not override `command` unless you intentionally change Triton flags. Optional env: `MODEL_REPOSITORY_PATH` (default `/models`), `TRITON_URL`, `MODEL_NAME`, `MODEL_VERSION`.
+### Argo CD deployment
+
+Plain Kubernetes manifests live under [`k8s/realsight/`](k8s/realsight/). An Argo CD `Application` in [`argocd/realsight-application.yaml`](argocd/realsight-application.yaml) syncs that path into the `realsight` namespace.
+
+| Resource | Name | Notes |
+|----------|------|-------|
+| Namespace | `realsight` | Created by manifest and/or `CreateNamespace=true` sync option |
+| ConfigMap | `realsight-config` | `TRITON_URL=realsight-triton:8000`, model name/version |
+| Deployment + Service | `realsight-triton` | Image `g0rg0ne/realsight-triton:v1.0.0`, ports 8000/8001/8002 |
+| Deployment + Service | `realsight-api` | Image `g0rg0ne/realsight-api:v1.0.0`, ClusterIP port 8888, `runAsUser` 1000 |
+
+Do not override container `command` unless you intentionally change Triton flags. Bump image tags in `k8s/realsight/triton.yaml` and `k8s/realsight/api.yaml` when releasing new versions.
+
+**Register the app** (adjust `repoURL` / `targetRevision` if your fork or branch differs):
+
+```bash
+kubectl apply -f argocd/realsight-application.yaml
+```
+
+Or apply workloads directly without Argo CD:
+
+```bash
+kubectl apply -f k8s/realsight/
+```
+
+**Port-forward** (API is ClusterIP-only):
+
+```bash
+kubectl -n realsight port-forward svc/realsight-api 8888:8888
+curl http://localhost:8888/api/v1/health
+```
+
+**Verify Triton** (optional):
+
+```bash
+kubectl -n realsight port-forward svc/realsight-triton 8000:8000
+curl http://localhost:8000/v2/health/ready
+```
 
 ### Environment variables
 
