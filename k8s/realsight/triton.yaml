@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: triton
-          image: g0rg0ne/realsight-triton:v1.1.2
+          image: g0rg0ne/realsight-triton:v1.1.3
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
